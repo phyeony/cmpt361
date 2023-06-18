@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="tutorial.js" type="module"></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+
+<body onload="myInitFunction()">
+
+<!-- Comment this out -->
+
+<h1>JavaScript Tutorial</h1>
+
+<h2>JavaScript Basics</h2>
+
+<div class="myClass">
+    <h3>Message Box</h3>
+    <div id="messageBox" class="messageBox"></div>
+
+</div>
+
+<h2>Buttons</h2>
+
+<div class="myClass">
+<p id="msg">You see a friendly dog.</p>
+
+
+<button type="button" onclick="dogButtonFunc()">Pet the dog.</button>
+
+</div>
+
+
+
+<h2>Text Input</h2>
+<div class="myClass">
+Please enter some text...
+<form>
+    <input type="text" id="textinput" ></input>
+</form>
+<p>You entered: </p>
+<p id="enteredtext">?</p>
+</div>
+
+
+
+<h2>Menus</h2>
+
+<div class="myClass" id="menuBox">
+<h3>Pick a Color</h3>
+<select id="myMenu" size="3">
+    <option value="SeaShell">Sea Shell</option>
+    <option value="Azure">Azure</option>
+    <option value="MintCream">Mint Cream</option>
+</select>
+
+<h3>Border Style (Radio Button Form)</h3>
+<form id="radioform">
+    <input type="radio" id="solid" name="borderStyle" value="solid">
+    <label for="solid">Solid</label><br>
+    <input type="radio" id="dashed" name="borderStyle" value="dashed">
+    <label for="dashed">Dashed</label><br>
+    <input type="radio" id="none" name="borderStyle" value="none">
+    <label for="none">None</label><br>
+  </form>
+</div>
+
+<h2>Sliders</h2>
+
+<div class="myClass" id="sliderBox">
+    <input id="slide" type="range"
+    min="0" max="50" step="1" value="2" />
+    <p id="slidertext">Slider Value: ?</p>
+</div>
+
+<h2>Color Picker</h2>
+<div class="myClass">
+<form id="colorform">
+<label for="bgcol">Pick a background color!</label>
+<input type="color" for="bgcol" value=#FFFFFF>
+</form>
+</div>
+
+
+<h2>Input Events</h2>
+<div class="myClass">
+    Key Down: <div id="keydown">None</div> <br>
+    Key Up: <div id="keyup">None</div> <br>
+    Mouse x: <div id="mpos_x">?</div> <br>
+    Mouse y: <div id="mpos_y">?</div> <br>
+    Click Counter: <div id="click_count">0</div>
+</div>
+
+
+<h2>Timers</h2>
+<div class="myClass">
+<p id="tick"></p>
+</div>
+
+</body>
+
+</html>
