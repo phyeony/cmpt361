@@ -1,3 +1,5 @@
+// Refered https://github.com/davidwparker/programmingtil-webgl for various drawings
+
 /*
     Initialization
 */
@@ -31,6 +33,39 @@ function initializeContext() {
     logMessage("WebGL initialized.");
 }
 
+function drawCircle() {
+    // Create a buffer object
+    var vertexBuffer = gl.createBuffer(),
+        vertices = [],
+        vertCount = 2;
+    for (var i=0.0; i<=360; i+=1) {
+      // degrees to radians
+      var j = i * Math.PI / 180;
+      // X Y Z
+      var vert1 = [
+        Math.sin(j),
+        Math.cos(j),
+      ];
+      var vert2 = [
+        0, // center X
+        0, // center Y
+      ];
+      // DONUT:
+
+      vertices = vertices.concat(vert1);
+      vertices = vertices.concat(vert2);
+    }
+    var n = vertices.length / vertCount;
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    var aPosition = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(aPosition);
+    gl.vertexAttribPointer(aPosition, vertCount, gl.FLOAT, false, 0, 0);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+}
+
 async function setup() {
     // TODO: Initialize the context.
     initializeContext();
@@ -38,54 +73,14 @@ async function setup() {
     // Set event listeners
     setEventListeners(canvas);
 
-    // TODO: Create vertex buffer data.
-    createBuffers();
-
-    // TODO: Load shader files
     await loadShaders();
-
-    // TODO: Compile the shaders
     compileShaders();
 
-    // TODO: Set the uniform variables
-    setUniformVariables();
-
-    // TODO: Create vertex array objects
-    createVertexArrayObjects();
-
-    // TODO: Draw!
     render();
-
 };
 
 window.onload = setup;
 
-// Vertex position is in the format [x0, y0, z0, x1, y1, ...]
-// Note that a vertex can have multiple attributes (ex. colors, normals, texture coordinates, etc.)
-var positions = [
-    -0.8, 0.6, 0,
-    0.8, 0.6, 0,
-    0.8, -0.6, 0,
-    -0.8, 0.6, 0,
-    0.8, -0.6, 0,
-    -0.8, -0.6, 0
-];
-
-// Vertex color data in the format [r0, g0, b0, a0, r1, g1, ...].
-// Note that for every vertex position, we have an associated color.
-// The number of tuples between different vertex attributes must be the same.
-var colors = [
-    1, 0, 0, 1, // red
-    0, 1, 0, 1, // green
-    0, 0, 1, 1, // blue
-    1, 0, 0, 1, // red
-    0, 0, 1, 1, // blue
-    1, 0, 1, 1 // purple
-];
-
-// Buffer objects
-var position_buffer;
-var color_buffer;
 
 // Creates buffers using provided data.
 function createBuffers() {
@@ -118,6 +113,157 @@ function createBuffers() {
 
     logMessage("Created buffers.");
 }
+
+
+// Draws the vertex data.
+function render() {
+    // Clear the screen (for COLOR_BUFFER_BIT)
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // Set the rendering st`ate to use the shader program
+    gl.useProgram(prog);
+
+    // Create the vertex buffer and color buffer
+    var vertexBuffer = gl.createBuffer();
+    var colorBuffer = gl.createBuffer();
+    
+    if (!vertexBuffer || !colorBuffer) {
+        console.log('Failed to create the buffer object');
+        return -1;
+    }
+
+    var pointsVertices = [
+        -0.5, -0.5
+    ]
+    var linesVertices = [
+        -0.25, -0.25,  -0.5, +0.5
+    ]
+    var triangleVertices = [
+        +0.5, -0.5,  0.0, 0.25,  +0.5, 0.0
+    ]
+    var circleVertices = []
+
+    
+    var circleColor = []
+    for (var i=0.0; i<=360; i+=1) {
+        // degrees to radians
+        var j = i * Math.PI / 180;
+        // X Y Z
+        var vert1 = [
+          0.3*Math.sin(j),
+          0.3*Math.cos(j),
+        ];
+        var vert2 = [
+          0, // center X
+          0, // center Y
+        ];
+        circleVertices = circleVertices.concat(vert1);
+        circleVertices = circleVertices.concat(vert2);
+        circleColor = circleColor.concat([0.0, 0.0, 1.0])
+        circleColor = circleColor.concat([0.0, 0.0, 1.0])
+    }
+    var colors = [
+        1, 0, 1, 
+        1, 0, 1, 
+        1, 0, 1// red
+    ]
+
+    // Draw points
+    drawA(gl.POINTS, pointsVertices, colors, vertexBuffer, colorBuffer);
+
+    // Draw lines
+    drawA(gl.LINES, linesVertices, colors, vertexBuffer, colorBuffer);
+    // Draw Circle
+    drawA(gl.TRIANGLE_STRIP, circleVertices, circleColor, vertexBuffer, colorBuffer)
+    // Draw triangles
+    drawA(gl.TRIANGLES, triangleVertices, colors, vertexBuffer, colorBuffer);
+
+    
+    // Delete the vertex buffer and color buffer
+    gl.deleteBuffer(vertexBuffer);
+    gl.deleteBuffer(colorBuffer);
+    // TODO: Call this function repeatedly with requestAnimationFrame.
+    requestAnimationFrame(render);
+}
+
+ // Generic format
+ function drawA(type, vertices, colors, vertexBuffer, colorBuffer) {
+    var n = vertices.length / 2;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    var aPosition = gl.getAttribLocation(prog, 'position');
+    if (aPosition < 0) {
+      console.log('Failed to get the storage location of aPosition');
+      return -1;
+    }
+    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(aPosition);
+
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+    var aColor = gl.getAttribLocation(prog, 'color');
+    if (aColor < 0) {
+      console.log('Failed to get the storage location of aColor');
+      return -1;
+    }
+    gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(aColor);
+    gl.bindVertexArray(null);
+
+    if (n < 0) {
+      console.log('Failed to set the positions of the vertices');
+      return;
+    }
+    gl.drawArrays(type, 0, n);
+  }
+
+
+
+/*
+    Input Events
+*/
+
+function setEventListeners(canvas) {
+    canvas.addEventListener('keydown', function (event) {
+        document.getElementById("keydown").innerText = event.key;
+    });
+
+    canvas.addEventListener('keyup', function (event) {
+        document.getElementById("keyup").innerText = event.key;
+    });
+
+    canvas.addEventListener('mousemove', function (event) {
+        document.getElementById("mpos_x").innerText = event.x;
+        document.getElementById("mpos_y").innerText = event.y;
+    });
+
+    var click_count = 0;
+    canvas.addEventListener('click', function (event) {
+        click_count += 1;
+        document.getElementById("click_count").innerText = click_count;
+    })
+}
+
+
+// Logging
+
+function logMessage(message) {
+    document.getElementById("messageBox").innerText += `[msg]: ${message}\n`;
+}
+
+function logError(message) {
+    document.getElementById("messageBox").innerText += `[err]: ${message}\n`;
+}
+
+function logObject(obj) {
+    let message = JSON.stringify(obj, null, 2);
+    document.getElementById("messageBox").innerText += `[obj]:\n${message}\n\n`;
+}
+
 
 // Shader sources
 var vs_source;
@@ -201,128 +347,4 @@ function compileShaders() {
     }
 
     logMessage("Shader program compiled successfully.");
-}
-
-
-// Sets the uniform variables in the shader program
-function setUniformVariables() {
-
-    // Defines a 4x4 identity matrix. Note that the layout
-    // in memory depends on whether the matrix is on the left or right
-    // of the vector during multiplication in the vertex shader.
-    // Here, this matrix is stored in column-major format.
-    // To convert it to row-major, you would take its transpose.
-    // For an identity matrix, these are equivalent.
-    const matrix = [
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 1.0, 0.0,
-        0.0, 0.0, 0.0, 1.0
-    ];
-
-    // TODO: Tell the current rendering state to use the shader program
-    gl.useProgram(prog);
-
-    // TODO: Get the location of the uniform variable in the shader
-    var transform_loc = gl.getUniformLocation(prog, "transform");
-
-    // TODO: Set the data of the uniform.
-    // The values should not be transposed.
-    gl.uniformMatrix4fv(transform_loc, false, matrix);
-
-    logMessage("Set uniform variables.")
-}
-
-// Handle for the vertex array object
-var vao;
-
-// Creates VAOs for vertex attributes
-function createVertexArrayObjects() {
-
-    // TODO: Create vertex array object
-    vao = gl.createVertexArray();
-    // TODO: Bind vertex array so we can modify it
-    gl.bindVertexArray(vao);
-
-    // TODO: Get shader location of the position vertex attribute.
-    var pos_idx = gl.getAttribLocation(prog, "position");
-    // TODO: Bind the position buffer again
-    gl.bindBuffer(gl.ARRAY_BUFFER, position_buffer);
-    // TODO: Specify the layout of the data using vertexAttribPointer.
-    gl.vertexAttribPointer(pos_idx, 3, gl.FLOAT, false, 0, 0);
-    // TODO: Enable this vertex attribute.
-    gl.enableVertexAttribArray(pos_idx);
-
-    // TODO: Repeat for the color vertex attribute. The size is now 4. 
-    var col_idx = gl.getAttribLocation(prog, "color");
-    gl.bindBuffer(gl.ARRAY_BUFFER, color_buffer);
-    gl.vertexAttribPointer(col_idx, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(col_idx);
-
-    // TODO: Unbind array to prevent accidental modification.
-    gl.bindVertexArray(null);
-
-    logMessage("Created VAOs.");
-
-}
-
-// Draws the vertex data.
-function render() {
-    // TODO: Clear the screen (for COLOR_BUFFER_BIT)
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    // TODO: Set the rendering state to use the shader program
-    gl.useProgram(prog);
-
-    // TODO: Bind the VAO
-    gl.bindVertexArray(vao);
-
-    // TODO: Draw 6 vertices using the TRIANGLES mode.
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-
-    // logMessage("Rendered to the screen!");
-
-    // TODO: Call this function repeatedly with requestAnimationFrame.
-    requestAnimationFrame(render);
-}
-
-/*
-    Input Events
-*/
-
-function setEventListeners(canvas) {
-    canvas.addEventListener('keydown', function (event) {
-        document.getElementById("keydown").innerText = event.key;
-    });
-
-    canvas.addEventListener('keyup', function (event) {
-        document.getElementById("keyup").innerText = event.key;
-    });
-
-    canvas.addEventListener('mousemove', function (event) {
-        document.getElementById("mpos_x").innerText = event.x;
-        document.getElementById("mpos_y").innerText = event.y;
-    });
-
-    var click_count = 0;
-    canvas.addEventListener('click', function (event) {
-        click_count += 1;
-        document.getElementById("click_count").innerText = click_count;
-    })
-}
-
-
-// Logging
-
-function logMessage(message) {
-    document.getElementById("messageBox").innerText += `[msg]: ${message}\n`;
-}
-
-function logError(message) {
-    document.getElementById("messageBox").innerText += `[err]: ${message}\n`;
-}
-
-function logObject(obj) {
-    let message = JSON.stringify(obj, null, 2);
-    document.getElementById("messageBox").innerText += `[obj]:\n${message}\n\n`;
 }

@@ -4,17 +4,13 @@
 // will be the position and the second will be
 // the color.
 layout(location = 0) in vec3 position;
-layout(location = 1) in vec4 color;
+layout(location = 1) in vec3 color;
 
-// TODO: Define the outputs. Since the output for the vertex
-// position is a built-in variable, we just need to define
-// an output for the color. Note that the default interpolation 
-// qualifier is smooth, so it is not neccessary to write.
-smooth out vec4 vertexColor;
-
-// TODO: Define a uniform mat4 variable for the
-// transformation matrix.
-uniform mat4 transform;
+// // TODO: Define the outputs. Since the output for the vertex
+// // position is a built-in variable, we just need to define
+// // an output for the color. Note that the default interpolation 
+// // qualifier is smooth, so it is not neccessary to write.
+smooth out vec3 vertexColor;
 
 // Per-vertex transformations 
 // should be computed in the vertex shader.
@@ -22,7 +18,7 @@ void main() {
 
     // TODO: Write the position to gl_Position.
     // Remember, we need to use homogenous coordinates.
-    gl_Position = transform*vec4(position, 1.0f);
+    gl_Position = vec4(position, 1.0f);
 
     // TODO: Write the color to the output defined earlier.
     vertexColor = color;
