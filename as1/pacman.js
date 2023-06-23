@@ -2,7 +2,6 @@
 // 1. Ghost movement
 // 2. Ghost collision (game over screen)
 // 3. HTML Score display
-// 4. Ghost home boundary display
 // 5. Game win screen
 // 6. setEventListeners on windows?
 // 7. Read over assingnment requirements
@@ -37,6 +36,8 @@ const UP = "ArrowUp";
 var pacmanPosition = [9, 4];
 var rGhostPosition = [4, 4];
 var bGhostPosition = [5, 4];
+const ghostHomeBottom = [5, 4];
+const ghostHomeTop = [4 ,4];
 
 var score =0;
 
@@ -139,6 +140,53 @@ function drawCustomTriangle(centerX, centerY, width, height, color, vertexBuffer
     drawA(gl.TRIANGLE_STRIP, triangleVertices, triangleColor, vertexBuffer, colorBuffer)
 }   
 
+function drawGhostHouseBorder(row, col, centerX, centerY, vertexBuffer, colorBuffer) {
+    var margin = 10;
+    if(row === ghostHomeTop[0] && col === ghostHomeTop[1]) {
+        // draw dotted border
+        var dottedTopVertices = []
+        var color = [];
+        const num = 10
+        for (var i=0; i< num; i++) {
+            //Left
+            dottedTopVertices = dottedTopVertices.concat([ centerX - tileWidth/2, centerY - tileHeight/2 + i*tileHeight/num])
+            color = color.concat(BLUE)
+        }
+        for (var i=0; i< num; i++) {
+            //Top
+            dottedTopVertices = dottedTopVertices.concat([ centerX - tileWidth/2 + i*tileHeight/num, centerY + tileHeight/2])
+            color = color.concat(BLUE)
+        }
+        for (var i=0; i< num; i++) {
+            //Right
+            dottedTopVertices = dottedTopVertices.concat([ centerX + tileWidth/2, centerY + tileHeight/2 - i*tileHeight/num])
+            color = color.concat(BLUE)
+        }
+        drawA(gl.LINES, dottedTopVertices, color, vertexBuffer, colorBuffer);
+    } else if (row === ghostHomeBottom[0] && col === ghostHomeBottom[1]) {
+        // draw dotted border
+        var dottedTopVertices = []
+        var color = [];
+        const num = 10
+        for (var i=0; i< num; i++) {
+            //Left
+            dottedTopVertices = dottedTopVertices.concat([ centerX - tileWidth/2, centerY - tileHeight/2 + i*tileHeight/num + tileHeight/margin])
+            color = color.concat(BLUE)
+        }
+        for (var i=0; i< num; i++) {
+            //Bottom
+            dottedTopVertices = dottedTopVertices.concat([ centerX - tileWidth/2 + i*tileHeight/num, centerY - tileHeight/2 + tileHeight/margin])
+            color = color.concat(BLUE)
+        }
+        for (var i=0; i< num; i++) {
+            //Right
+            dottedTopVertices = dottedTopVertices.concat([ centerX + tileWidth/2, centerY + tileHeight/2 - i*tileHeight/num])
+            color = color.concat(BLUE)
+        }
+        drawA(gl.LINES, dottedTopVertices, color, vertexBuffer, colorBuffer);
+    }  
+}
+
 function checkCollision(pacmanDirection) {
     var [pacmanRow, pacmanCol] = pacmanPosition
     var nextRow = pacmanRow
@@ -156,6 +204,12 @@ function checkCollision(pacmanDirection) {
     if(nextCol < 0 || nextCol > 8 || nextRow < 0 || nextRow > 9) {
         console.log("OUT OF BOUNDS")
         return;
+    }
+    if (
+      (nextRow === ghostHomeBottom[0] && nextCol === ghostHomeBottom[1]) ||
+      (nextRow === ghostHomeTop[0] && nextCol === ghostHomeTop[1])
+    ) {
+      return;
     }
     if(mapState[nextRow][nextCol] === WALL) {
         console.log("WALL")
@@ -295,7 +349,6 @@ function startGame() {
             // Calculate the position of the current tile in clip space
             var x = -1 + (2*(col)+1) * tileWidth / 2;
             var y = 1 - (2*(row)+1) * tileHeight / 2;
-            
 
             if (tile === WALL) {
                 drawRectangle(x, y, tileWidth, tileWidth, GREEN, vertexBuffer, colorBuffer);
@@ -314,8 +367,8 @@ function startGame() {
             } else {
                 drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
             }
-            
 
+            drawGhostHouseBorder(row, col, x, y, vertexBuffer, colorBuffer); 
         }
     }
     
@@ -369,7 +422,6 @@ function startGame() {
 
 function setEventListeners(canvas) {
     canvas.addEventListener('keydown', function (event) {
-        document.getElementById("keydown").innerText = event.key;
         movePacman(event.key);
     });
 
