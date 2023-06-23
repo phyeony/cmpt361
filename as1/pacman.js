@@ -1,9 +1,8 @@
 // TODO:
 // 1. Ghost movement
 // 2. Ghost collision (game over screen)
-// 3. HTML Score display
+// 3. Timer
 // 5. Game win screen
-// 6. setEventListeners on windows?
 // 7. Read over assingnment requirements
 
 const WALL = 0;
@@ -217,6 +216,7 @@ function checkCollision(pacmanDirection) {
     } else if(mapState[nextRow][nextCol] === DOT) {
         mapState[pacmanRow][pacmanCol] = EMPTY
         score += 100
+        document.getElementById("scoreValue").innerHTML = score;
         console.log(score)
     } else if (mapState[nextRow][nextCol] === EMPTY) {
         mapState[pacmanRow][pacmanCol] = EMPTY
@@ -317,30 +317,6 @@ function startGame() {
         return -1;
     }
 
-    // var pointsVertices = [
-    //     -0.5, -0.5
-    // ]
-    // var linesVertices = [
-    //     -0.25, -0.25,  -0.5, +0.5
-    // ]
-    // var triangleVertices = [
-    //     +0.5, -0.5,  0.0, 0.25,  +0.5, 0.0
-    // ]
-
-
-    // // Draw points
-    // drawA(gl.POINTS, pointsVertices, colors, vertexBuffer, colorBuffer);
-
-    // // Draw lines
-    // drawA(gl.LINES, linesVertices, colors, vertexBuffer, colorBuffer);
-    // // Draw Circle
-    // drawCircle(0.32, 0, 0, DARK_YELLOW, vertexBuffer, colorBuffer)
-    // drawRectangle(0,0, 0.5, 0.5,BLUE, vertexBuffer, colorBuffer)
-    // drawCustomTriangle(0, 0, 0.3, 0.3, [1,0,0], vertexBuffer, colorBuffer)
-
-    // // Draw triangles
-    // drawA(gl.TRIANGLES, triangleVertices, colors, vertexBuffer, colorBuffer);
-
     // Loop through the mapState array
     for (var row = 0; row < NUM_ROW; row++) {
         for (var col = 0; col < NUM_COL; col++) {
@@ -421,13 +397,20 @@ function startGame() {
 */
 
 function setEventListeners(canvas) {
-    canvas.addEventListener('keydown', function (event) {
-        movePacman(event.key);
-    });
-
-    // canvas.addEventListener('keyup', function (event) {
-    //     document.getElementById("keyup").innerText = event.key;
+    // canvas.addEventListener('keydown', function (event) {
+      
     // });
+    var hasPressed = null;
+    window.addEventListener('keydown', function(event) {
+        // Handle the click event here
+        if(!hasPressed && hasPressed !== event.key) {
+            movePacman(event.key);
+            hasPressed = event.key;
+        }
+    });
+    window.addEventListener('keyup', function(event) {
+        hasPressed = null;
+    });
 }
 
 // Shader sources
