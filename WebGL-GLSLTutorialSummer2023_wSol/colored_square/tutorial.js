@@ -58,7 +58,7 @@ function drawCircle(radius, centerX, centerY, color, vertexBuffer, colorBuffer) 
 
 function drawRectangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
     var rectangleVertices = [
-        centerX-width/2, centerY-height/2,
+        centerX-width/2, centerY-height/2, 
         centerX+width/2, centerY-height/2,
         centerX-width/2, centerY+height/2,
         centerX+width/2, centerY+height/2,
@@ -67,8 +67,21 @@ function drawRectangle(centerX, centerY, width, height, color, vertexBuffer, col
     for(var i=0;i<8;i++){
         rectangleColor = rectangleColor.concat(color)
     }
-    // console.log(rectangleColor)
     drawA(gl.TRIANGLE_STRIP, rectangleVertices, rectangleColor, vertexBuffer, colorBuffer)
+}   
+
+function drawCustomTriangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
+    var triangleVertices = [
+        centerX-width/2, centerY - 1/3*height,
+        centerX, centerY + 2/3 * height,
+        centerX+width/2, centerY - 1/3*height,
+    ]
+    var triangleColor = []
+    for(var i=0;i<3;i++){
+        triangleColor = triangleColor.concat(color)
+    }
+    // console.log(rectangleColor)
+    drawA(gl.TRIANGLE_STRIP, triangleVertices, triangleColor, vertexBuffer, colorBuffer)
 }   
  // function drawCircle() {
 //     // Create a buffer object
@@ -215,8 +228,10 @@ function render() {
     // Draw lines
     drawA(gl.LINES, linesVertices, colors, vertexBuffer, colorBuffer);
     // Draw Circle
-    // drawCircle(0.32, 0, 0, [0,0,1], vertexBuffer, colorBuffer)
+    drawCircle(0.32, 0, 0, [0,0,1], vertexBuffer, colorBuffer)
     drawRectangle(0,0, 0.5, 0.5, [0,1,1], vertexBuffer, colorBuffer)
+    drawCustomTriangle(0, 0, 0.3, 0.3, [1,0,0], vertexBuffer, colorBuffer)
+
     // Draw triangles
     drawA(gl.TRIANGLES, triangleVertices, colors, vertexBuffer, colorBuffer);
 
