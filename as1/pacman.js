@@ -65,43 +65,88 @@ function initializeContext() {
     logMessage("WebGL initialized.");
 }
 
-function drawCircle() {
-    // Create a buffer object
-    var vertexBuffer = gl.createBuffer(),
-        vertices = [],
-        vertCount = 2;
+function drawCircle(radius, centerX, centerY, color, vertexBuffer, colorBuffer) {
+    var circleVertices = [];
+    var circleColor = [];
     for (var i=0.0; i<=360; i+=1) {
-      // degrees to radians
-      var j = i * Math.PI / 180;
-      // X Y Z
-      var vert1 = [
-        Math.sin(j),
-        Math.cos(j),
-        // 0,
-      ];
-      var vert2 = [
-        0,
-        0,
-        // 0,
-      ];
-      // DONUT:
-      // var vert2 = [
-      //   Math.sin(j)*0.5,
-      //   Math.cos(j)*0.5,
-      // ];
-      vertices = vertices.concat(vert1);
-      vertices = vertices.concat(vert2);
+        // degrees to radians
+        var j = i * Math.PI / 180;
+        // X Y Z
+        var vert1 = [
+          centerX+radius*Math.sin(j),
+          centerY+radius*Math.cos(j),
+        ];
+        var vert2 = [
+          centerX,
+          centerY,
+        ];
+        circleVertices = circleVertices.concat(vert1);
+        circleVertices = circleVertices.concat(vert2);
+        circleColor = circleColor.concat(color)
+        circleColor = circleColor.concat(color)
     }
-    var n = vertices.length / vertCount;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    var aPosition = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, vertCount, gl.FLOAT, false, 0, 0);
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+    drawA(gl.TRIANGLE_STRIP, circleVertices, circleColor, vertexBuffer, colorBuffer)
 }
+
+function drawRectangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
+    var rectangleVertices = [
+        centerX-width/2, centerY-height/2, 
+        centerX+width/2, centerY-height/2,
+        centerX-width/2, centerY+height/2,
+        centerX+width/2, centerY+height/2,
+    ]
+    var rectangleColor = []
+    for(var i=0;i<8;i++){
+        rectangleColor = rectangleColor.concat(color)
+    }
+    drawA(gl.TRIANGLE_STRIP, rectangleVertices, rectangleColor, vertexBuffer, colorBuffer)
+}   
+
+function drawCustomTriangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
+    var triangleVertices = [
+        centerX-width/2, centerY - 1/3*height,
+        centerX, centerY + 2/3 * height,
+        centerX+width/2, centerY - 1/3*height,
+    ]
+    var triangleColor = []
+    for(var i=0;i<3;i++){
+        triangleColor = triangleColor.concat(color)
+    }
+    // console.log(rectangleColor)
+    drawA(gl.TRIANGLE_STRIP, triangleVertices, triangleColor, vertexBuffer, colorBuffer)
+}   
+ // function drawCircle() {
+//     // Create a buffer object
+//     var vertexBuffer = gl.createBuffer(),
+//         vertices = [],
+//         vertCount = 2;
+//     for (var i=0.0; i<=360; i+=1) {
+//       // degrees to radians
+//       var j = i * Math.PI / 180;
+//       // X Y Z
+//       var vert1 = [
+//         Math.sin(j),
+//         Math.cos(j),
+//       ];
+//       var vert2 = [
+//         0, // center X
+//         0, // center Y
+//       ];
+//       // DONUT:
+
+//       vertices = vertices.concat(vert1);
+//       vertices = vertices.concat(vert2);
+//     }
+//     var n = vertices.length / vertCount;
+//     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+//     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+//     var aPosition = gl.getAttribLocation(program, 'position');
+//     gl.enableVertexAttribArray(aPosition);
+//     gl.vertexAttribPointer(aPosition, vertCount, gl.FLOAT, false, 0, 0);
+
+//     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+// }
 
 async function setup() {
     // TODO: Initialize the context.
@@ -154,13 +199,21 @@ function createBuffers() {
 
 // Draws the vertex data.
 function render() {
-    // TODO: Clear the screen (for COLOR_BUFFER_BIT)
+    // Clear the screen (for COLOR_BUFFER_BIT)
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // TODO: Set the rendering st`ate to use the shader program
+    // Set the rendering st`ate to use the shader program
     gl.useProgram(prog);
 
+    // Create the vertex buffer and color buffer
+    var vertexBuffer = gl.createBuffer();
+    var colorBuffer = gl.createBuffer();
     
+    if (!vertexBuffer || !colorBuffer) {
+        console.log('Failed to create the buffer object');
+        return -1;
+    }
+
     var pointsVertices = [
         -0.5, -0.5
     ]
@@ -170,28 +223,61 @@ function render() {
     var triangleVertices = [
         +0.5, -0.5,  0.0, 0.25,  +0.5, 0.0
     ]
+    var circleVertices = []
 
+    
+    var circleColor = []
+    var radius = 0.3;
+    var centerX = -0.3;
+    var centerY = -0.3;
+     
+    for (var i=0.0; i<=360; i+=1) {
+        // degrees to radians
+        var j = i * Math.PI / 180;
+        // X Y Z
+        var vert1 = [
+          centerX+radius*Math.sin(j),
+          centerY+radius*Math.cos(j),
+        ];
+        var vert2 = [
+          centerX,
+          centerY,
+        ];
+        circleVertices = circleVertices.concat(vert1);
+        circleVertices = circleVertices.concat(vert2);
+        circleColor = circleColor.concat([0.0, 0.0, 1.0])
+        circleColor = circleColor.concat([0.0, 0.0, 1.0])
+    }
     var colors = [
-        1, 0, 1, 1, // red
+        1, 0, 1, 
+        1, 0, 1, 
+        1, 0, 1// red
     ]
 
-    drawA(gl.POINTS, pointsVertices, colors);
-    drawA(gl.LINES, linesVertices, colors);
-    drawA(gl.TRIANGLES, triangleVertices, colors);
+    // Draw points
+    drawA(gl.POINTS, pointsVertices, colors, vertexBuffer, colorBuffer);
 
+    // Draw lines
+    drawA(gl.LINES, linesVertices, colors, vertexBuffer, colorBuffer);
+    // Draw Circle
+    drawCircle(0.32, 0, 0, [0,0,1], vertexBuffer, colorBuffer)
+    drawRectangle(0,0, 0.5, 0.5, [0,1,1], vertexBuffer, colorBuffer)
+    drawCustomTriangle(0, 0, 0.3, 0.3, [1,0,0], vertexBuffer, colorBuffer)
+
+    // Draw triangles
+    drawA(gl.TRIANGLES, triangleVertices, colors, vertexBuffer, colorBuffer);
+
+    
+    // Delete the vertex buffer and color buffer
+    gl.deleteBuffer(vertexBuffer);
+    gl.deleteBuffer(colorBuffer);
     // TODO: Call this function repeatedly with requestAnimationFrame.
     requestAnimationFrame(render);
 }
 
  // Generic format
- function drawA(type, vertices, colors) {
+ function drawA(type, vertices, colors, vertexBuffer, colorBuffer) {
     var n = vertices.length / 2;
-
-    var vertexBuffer = gl.createBuffer();
-    if (!vertexBuffer) {
-      console.log('Failed to create the buffer object');
-      return -1;
-    }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -201,15 +287,9 @@ function render() {
       console.log('Failed to get the storage location of aPosition');
       return -1;
     }
-
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aPosition);
 
-    var colorBuffer = gl.createBuffer();
-    if (!colorBuffer) {
-      console.log('Failed to create the buffer object');
-      return -1;
-    }
 
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
@@ -219,10 +299,9 @@ function render() {
       console.log('Failed to get the storage location of aColor');
       return -1;
     }
-
-    gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aColor);
-
+    gl.bindVertexArray(null);
 
     if (n < 0) {
       console.log('Failed to set the positions of the vertices');
