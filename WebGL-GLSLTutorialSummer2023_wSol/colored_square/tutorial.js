@@ -33,38 +33,75 @@ function initializeContext() {
     logMessage("WebGL initialized.");
 }
 
-function drawCircle() {
-    // Create a buffer object
-    var vertexBuffer = gl.createBuffer(),
-        vertices = [],
-        vertCount = 2;
+function drawCircle(radius, centerX, centerY, color, vertexBuffer, colorBuffer) {
+    var circleVertices = [];
+    var circleColor = [];
     for (var i=0.0; i<=360; i+=1) {
-      // degrees to radians
-      var j = i * Math.PI / 180;
-      // X Y Z
-      var vert1 = [
-        Math.sin(j),
-        Math.cos(j),
-      ];
-      var vert2 = [
-        0, // center X
-        0, // center Y
-      ];
-      // DONUT:
-
-      vertices = vertices.concat(vert1);
-      vertices = vertices.concat(vert2);
+        // degrees to radians
+        var j = i * Math.PI / 180;
+        // X Y Z
+        var vert1 = [
+          centerX+radius*Math.sin(j),
+          centerY+radius*Math.cos(j),
+        ];
+        var vert2 = [
+          centerX,
+          centerY,
+        ];
+        circleVertices = circleVertices.concat(vert1);
+        circleVertices = circleVertices.concat(vert2);
+        circleColor = circleColor.concat(color)
+        circleColor = circleColor.concat(color)
     }
-    var n = vertices.length / vertCount;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-    var aPosition = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, vertCount, gl.FLOAT, false, 0, 0);
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+    drawA(gl.TRIANGLE_STRIP, circleVertices, circleColor, vertexBuffer, colorBuffer)
 }
+
+function drawRectangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
+    var rectangleVertices = [
+        centerX-width/2, centerY-height/2,
+        centerX+width/2, centerY-height/2,
+        centerX-width/2, centerY+height/2,
+        centerX+width/2, centerY+height/2,
+    ]
+    var rectangleColor = []
+    for(var i=0;i<8;i++){
+        rectangleColor = rectangleColor.concat(color)
+    }
+    // console.log(rectangleColor)
+    drawA(gl.TRIANGLE_STRIP, rectangleVertices, rectangleColor, vertexBuffer, colorBuffer)
+}   
+ // function drawCircle() {
+//     // Create a buffer object
+//     var vertexBuffer = gl.createBuffer(),
+//         vertices = [],
+//         vertCount = 2;
+//     for (var i=0.0; i<=360; i+=1) {
+//       // degrees to radians
+//       var j = i * Math.PI / 180;
+//       // X Y Z
+//       var vert1 = [
+//         Math.sin(j),
+//         Math.cos(j),
+//       ];
+//       var vert2 = [
+//         0, // center X
+//         0, // center Y
+//       ];
+//       // DONUT:
+
+//       vertices = vertices.concat(vert1);
+//       vertices = vertices.concat(vert2);
+//     }
+//     var n = vertices.length / vertCount;
+//     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+//     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+//     var aPosition = gl.getAttribLocation(program, 'position');
+//     gl.enableVertexAttribArray(aPosition);
+//     gl.vertexAttribPointer(aPosition, vertCount, gl.FLOAT, false, 0, 0);
+
+//     gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+// }
 
 async function setup() {
     // TODO: Initialize the context.
@@ -145,17 +182,21 @@ function render() {
 
     
     var circleColor = []
+    var radius = 0.3;
+    var centerX = -0.3;
+    var centerY = -0.3;
+     
     for (var i=0.0; i<=360; i+=1) {
         // degrees to radians
         var j = i * Math.PI / 180;
         // X Y Z
         var vert1 = [
-          0.3*Math.sin(j),
-          0.3*Math.cos(j),
+          centerX+radius*Math.sin(j),
+          centerY+radius*Math.cos(j),
         ];
         var vert2 = [
-          0, // center X
-          0, // center Y
+          centerX,
+          centerY,
         ];
         circleVertices = circleVertices.concat(vert1);
         circleVertices = circleVertices.concat(vert2);
@@ -174,7 +215,8 @@ function render() {
     // Draw lines
     drawA(gl.LINES, linesVertices, colors, vertexBuffer, colorBuffer);
     // Draw Circle
-    drawA(gl.TRIANGLE_STRIP, circleVertices, circleColor, vertexBuffer, colorBuffer)
+    // drawCircle(0.32, 0, 0, [0,0,1], vertexBuffer, colorBuffer)
+    drawRectangle(0,0, 0.5, 0.5, [0,1,1], vertexBuffer, colorBuffer)
     // Draw triangles
     drawA(gl.TRIANGLES, triangleVertices, colors, vertexBuffer, colorBuffer);
 
