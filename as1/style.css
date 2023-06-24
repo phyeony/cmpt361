@@ -1,9 +1,13 @@
-.canvasContainer {
+#canvasContainer {
     min-height: 30px;
     aspect-ratio: 1.0;
     width: 80%;
     height: 90%;
     margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 canvas {
@@ -48,3 +52,13 @@ button {
     color:white;
     margin-bottom: -10px;
 }
+
+#gameOver {
+    display: none;
+    color:white; 
+}
+
+#gameDescription {
+    color:white;
+    margin: 35px;
+}  
