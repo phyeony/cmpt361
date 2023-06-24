@@ -1,10 +1,4 @@
-// TODO:
-// 1. Ghost movement
-// 2. Ghost collision (game over screen)
-// 3. Timer
-// 5. Game win screen
-// 7. Read over assingnment requirements
-
+// Refered https://github.com/davidwparker/programmingtil-webgl for various drawings
 const WALL = 0;
 const DOT = 1;
 const EMPTY = 2;
@@ -81,7 +75,6 @@ var initMapState = [
 ];
 
 let mapState = [];
-// Refered https://github.com/davidwparker/programmingtil-webgl for various drawings
 
 /*
     Initialization
@@ -93,71 +86,40 @@ var canvas;
 
 // Sets up the canvas and WebGL context.
 function initializeContext() {
-  // TODO: Get and store the webgl context from the canvas
   canvas = document.getElementById("myCanvas");
   gl = canvas.getContext("webgl2");
 
-  // TODO: Determine the ratio between physical pixels and CSS pixels
   const pixelRatio = window.devicePixelRatio || 1;
 
-  // TODO: Set the width and height of the canvas
-  // using clientWidth and clientHeight
   canvas.width = pixelRatio * canvas.clientWidth;
   canvas.height = pixelRatio * canvas.clientHeight;
 
-  // TODO: Set the viewport size
   gl.viewport(0, 0, canvas.width, canvas.height);
 
-  // TODO: Set the clear color to white.
   gl.clearColor(1, 1, 1, 0);
-  // TODO: Set the line width to 1.0.
   gl.lineWidth(1.0);
 
   console.log("WebGL initialized.");
 }
 
-function drawCircle(
-  radius,
-  centerX,
-  centerY,
-  color,
-  vertexBuffer,
-  colorBuffer
-) {
+function drawCircle(radius, centerX, centerY, color, vertexBuffer, colorBuffer) {
   var circleVertices = [];
   var circleColor = [];
   for (var i = 0.0; i <= 360; i += 1) {
     // degrees to radians
     var j = (i * Math.PI) / 180;
     // X Y Z
-    var vert1 = [
-      centerX + radius * Math.sin(j),
-      centerY + radius * Math.cos(j),
-    ];
+    var vert1 = [centerX + radius * Math.sin(j), centerY + radius * Math.cos(j)];
     var vert2 = [centerX, centerY];
     circleVertices = circleVertices.concat(vert1);
     circleVertices = circleVertices.concat(vert2);
     circleColor = circleColor.concat(color);
     circleColor = circleColor.concat(color);
   }
-  drawA(
-    gl.TRIANGLE_STRIP,
-    circleVertices,
-    circleColor,
-    vertexBuffer,
-    colorBuffer
-  );
+  drawA(gl.TRIANGLE_STRIP, circleVertices, circleColor, vertexBuffer, colorBuffer);
 }
 
-function drawRectangle(
-  centerX,
-  centerY,
-  width,
-  height,
-  color,
-  vertexBuffer,
-  colorBuffer
-) {
+function drawRectangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
   var rectangleVertices = [
     centerX - width / 2,
     centerY - height / 2,
@@ -172,24 +134,10 @@ function drawRectangle(
   for (var i = 0; i < 8; i++) {
     rectangleColor = rectangleColor.concat(color);
   }
-  drawA(
-    gl.TRIANGLE_STRIP,
-    rectangleVertices,
-    rectangleColor,
-    vertexBuffer,
-    colorBuffer
-  );
+  drawA(gl.TRIANGLE_STRIP, rectangleVertices, rectangleColor, vertexBuffer, colorBuffer);
 }
 
-function drawCustomTriangle(
-  centerX,
-  centerY,
-  width,
-  height,
-  color,
-  vertexBuffer,
-  colorBuffer
-) {
+function drawCustomTriangle(centerX, centerY, width, height, color, vertexBuffer, colorBuffer) {
   var triangleVertices = [
     centerX - width / 2,
     centerY - (1 / 3) * height,
@@ -202,24 +150,10 @@ function drawCustomTriangle(
   for (var i = 0; i < 3; i++) {
     triangleColor = triangleColor.concat(color);
   }
-  // console.log(rectangleColor)
-  drawA(
-    gl.TRIANGLE_STRIP,
-    triangleVertices,
-    triangleColor,
-    vertexBuffer,
-    colorBuffer
-  );
+  drawA(gl.TRIANGLE_STRIP, triangleVertices, triangleColor, vertexBuffer, colorBuffer);
 }
 
-function drawGhostHouseBorder(
-  row,
-  col,
-  centerX,
-  centerY,
-  vertexBuffer,
-  colorBuffer
-) {
+function drawGhostHouseBorder(row, col, centerX, centerY, vertexBuffer, colorBuffer) {
   var margin = 10;
   if (row === ghostHomeTop[0] && col === ghostHomeTop[1]) {
     // draw dotted border
@@ -397,7 +331,6 @@ function checkCollision(pacmanDirection) {
 const gameOver = () => {
   clearTimer();
   clearGhostMovementInterval();
-  // calculateFinalScore();
   isGameStopped = true;
   displayGameStopWithText("Game Over!", "Press 'shift+r' to restart game.");
 };
@@ -519,15 +452,7 @@ function drawBackground() {
       }
 
       // Draw a rectangle for the background
-      drawRectangle(
-        x,
-        y,
-        tileWidth,
-        tileWidth,
-        color,
-        vertexBuffer,
-        colorBuffer
-      );
+      drawRectangle(x, y, tileWidth, tileWidth, color, vertexBuffer, colorBuffer);
     }
   }
 
@@ -540,23 +465,15 @@ function moveGhosts() {
   ghostMovementIntervalId = setInterval(function () {
     // Calculate the next locations for both ghosts
 
-    const { position: nextRGhostLocation } = dijkstra(
-      rGhostPosition,
-      pacmanPosition
-    );
-    const { position: nextBGhostLocation } = dijkstra(
-      bGhostPosition,
-      pacmanPosition
-    );
+    const { position: nextRGhostLocation } = dijkstra(rGhostPosition, pacmanPosition);
+    const { position: nextBGhostLocation } = dijkstra(bGhostPosition, pacmanPosition);
 
     // Update the map state for both ghosts
     mapState[rGhostPosition.row][rGhostPosition.col] = rGhostPreviousTileType;
     mapState[bGhostPosition.row][bGhostPosition.col] = bGhostPreviousTileType;
 
-    rGhostPreviousTileType =
-      mapState[nextRGhostLocation.row][nextRGhostLocation.col];
-    bGhostPreviousTileType =
-      mapState[nextBGhostLocation.row][nextBGhostLocation.col];
+    rGhostPreviousTileType = mapState[nextRGhostLocation.row][nextRGhostLocation.col];
+    bGhostPreviousTileType = mapState[nextBGhostLocation.row][nextBGhostLocation.col];
 
     // Update the positions of both ghosts
     rGhostPosition = nextRGhostLocation;
@@ -566,17 +483,11 @@ function moveGhosts() {
     mapState[rGhostPosition.row][rGhostPosition.col] = R_GHOST;
     mapState[bGhostPosition.row][bGhostPosition.col] = B_GHOST;
 
-    if (
-      nextRGhostLocation.row === pacmanPosition.row &&
-      nextRGhostLocation.col === pacmanPosition.col
-    ) {
+    if (nextRGhostLocation.row === pacmanPosition.row && nextRGhostLocation.col === pacmanPosition.col) {
       rGhostCatchesPacman();
     }
 
-    if (
-      nextBGhostLocation.row === pacmanPosition.row &&
-      nextBGhostLocation.col === pacmanPosition.col
-    ) {
+    if (nextBGhostLocation.row === pacmanPosition.row && nextBGhostLocation.col === pacmanPosition.col) {
       bGhostCatchesPacman();
     }
   }, 500);
@@ -742,8 +653,6 @@ function startGame() {
   if (isGameFreshlyStarted) {
     mapState = JSON.parse(JSON.stringify(initMapState));
     randomilyPopulateSuperDot();
-    // randoml
-    // console.log(mapState);
     timeLeft = 60;
     pacmanPosition = initPacmanPosition;
     rGhostPosition = initRGhostPosition;
@@ -785,112 +694,25 @@ function startGame() {
         var y = 1 - ((2 * row + 1) * tileHeight) / 2;
 
         if (tile === WALL) {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREEN,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREEN, vertexBuffer, colorBuffer);
         } else if (tile === DOT) {
           numDotsInField += 1;
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
-          drawCircle(
-            tileWidth / 7,
-            x,
-            y,
-            DARK_YELLOW,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
+          drawCircle(tileWidth / 7, x, y, DARK_YELLOW, vertexBuffer, colorBuffer);
         } else if (tile === SUPER_DOT) {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
           drawCircle(tileWidth / 7, x, y, PINK, vertexBuffer, colorBuffer);
         } else if (tile === PACMAN) {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
-          drawCustomTriangle(
-            x,
-            y,
-            tileWidth / 2,
-            tileWidth / 2,
-            BLUE,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
+          drawCustomTriangle(x, y, tileWidth / 2, tileWidth / 2, BLUE, vertexBuffer, colorBuffer);
         } else if (tile === R_GHOST) {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
-          drawRectangle(
-            x,
-            y,
-            tileWidth / 2,
-            tileWidth / 2,
-            RED,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
+          drawRectangle(x, y, tileWidth / 2, tileWidth / 2, RED, vertexBuffer, colorBuffer);
         } else if (tile === B_GHOST) {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
-          drawRectangle(
-            x,
-            y,
-            tileWidth / 2,
-            tileWidth / 2,
-            TEAL_BLUE,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
+          drawRectangle(x, y, tileWidth / 2, tileWidth / 2, TEAL_BLUE, vertexBuffer, colorBuffer);
         } else {
-          drawRectangle(
-            x,
-            y,
-            tileWidth,
-            tileWidth,
-            GREY,
-            vertexBuffer,
-            colorBuffer
-          );
+          drawRectangle(x, y, tileWidth, tileWidth, GREY, vertexBuffer, colorBuffer);
         }
 
         drawGhostHouseBorder(row, col, x, y, vertexBuffer, colorBuffer);
@@ -958,12 +780,7 @@ function setEventListeners(canvas) {
     // console.log(event.key)
     if (!hasPressed && hasPressed !== event.key) {
       if (!isGameStopped) {
-        if (
-          event.key === UP ||
-          event.key === DOWN ||
-          event.key === LEFT ||
-          event.key === RIGHT
-        ) {
+        if (event.key === UP || event.key === DOWN || event.key === LEFT || event.key === RIGHT) {
           movePacman(event.key);
           hasPressed = event.key;
         }
@@ -973,21 +790,12 @@ function setEventListeners(canvas) {
         gamePlayNum++;
         isGameFreshlyStarted = true;
         isGameStopped = false;
-      } else if (
-        !isGameStopped &&
-        event.key === PAUSE_GAME &&
-        numDotsLeft > 0
-      ) {
+      } else if (!isGameStopped && event.key === PAUSE_GAME && numDotsLeft > 0) {
         isGameStopped = true;
         clearTimer();
         clearGhostMovementInterval();
         displayPaused();
-      } else if (
-        isGameStopped &&
-        event.key === RESUME_GAME &&
-        numDotsLeft > 0 &&
-        score > 0
-      ) {
+      } else if (isGameStopped && event.key === RESUME_GAME && numDotsLeft > 0 && score > 0) {
         isGameStopped = false;
         removePausedDisplay();
         timerIntervalId = startTimer();
